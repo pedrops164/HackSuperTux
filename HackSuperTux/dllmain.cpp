@@ -62,6 +62,7 @@ DWORD WINAPI HackModule(HMODULE hModule) {
 
     bool bHealth = false, flyingUp = false, flyingDown = false, flyingHacks = false;
     bool speed2x = false, jump2x = false;
+    bool immortalityHacks = false, spectateHacks = false;
 
 
     //hack loop
@@ -107,11 +108,46 @@ DWORD WINAPI HackModule(HMODULE hModule) {
                 *(float*)x_speed_adr = 500.0;
             }
         }
+        if (GetAsyncKeyState(VK_F5) & 1) {
+            //toggle immortality to entities
+            uintptr_t isImmortal_address = mem::FindDMAAddy((uintptr_t)moduleBase + 0x2AB760, { 0xC, 0x4, 0xBF });
+            immortalityHacks = !immortalityHacks;
+            console.toggleImmortalityHacks();
+            if (immortalityHacks) {
+                *(BYTE*)isImmortal_address = 0x1;
+            }
+            else {
+                *(BYTE*)isImmortal_address = 0x0;
+            }
+        } if (GetAsyncKeyState(VK_F6) & 1) {
+            uintptr_t gravityOn_address = mem::FindDMAAddy((uintptr_t)moduleBase + 0x2AB760, { 0xC, 0x4, 0x1B0 });
+            uintptr_t collisionsOn_address = mem::FindDMAAddy((uintptr_t)moduleBase + 0x2AB760, { 0xC, 0x4, 0x60 });
+            uintptr_t flyingOn_address = mem::FindDMAAddy((uintptr_t)moduleBase + 0x2AB760, { 0xC, 0x4, 0x1E4 });
 
-        if (GetAsyncKeyState(VK_F7) & 1) {
+            spectateHacks = !spectateHacks;
+            console.toggleSpectateMode();
+            if (spectateHacks) {
+                *(BYTE*)flyingOn_address = 0x1; //enable flying mode
+                *(BYTE*)collisionsOn_address = 0x0; //turn off collisions
+                *(BYTE*)gravityOn_address = 0x0; //turn off gravity
+            }
+            else {
+                *(BYTE*)flyingOn_address = 0x0; //disable flying mode
+                *(BYTE*)collisionsOn_address = 0x2; //turn on collisions
+                *(BYTE*)gravityOn_address = 0x1; //turn on gravity
+            }
+        } else if (GetAsyncKeyState(VK_F7) & 1) {
             //toggle flying hacks
+            uintptr_t gravityOn_address = mem::FindDMAAddy((uintptr_t)moduleBase + 0x2AB760, { 0xC, 0x4, 0x1B0 });
             flyingHacks = !flyingHacks;
             console.toggleFlyingHacks();
+            if (flyingHacks) {
+                //toggle gravity off
+                *(int*)gravityOn_address = 0;
+            }
+            else {
+                *(int*)gravityOn_address = 1;
+            }
         }
         if (GetAsyncKeyState(VK_F8) & 1) {
             //toggle speed 2x hack
