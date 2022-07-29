@@ -2,4 +2,8 @@
 Supertux Trainer Internal Hack with Console interface
 
 # Available Hacks
-Includes Flying, Speed, and Jump Hacks
+Flying Hack
+Speed Hack
+Jump Hack
+Spectate Hack
+Godmode Hack
